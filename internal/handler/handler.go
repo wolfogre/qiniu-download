@@ -33,8 +33,12 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "HEAD":
 		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
-			logger.Debug(r.Header)
-			response(logger, w, judge.Judge(r.Host, strings.Split(r.URL.Path[len(AUTH_PREFIX):], "/")), "")
+			limitsStr := r.URL.Path[len(AUTH_PREFIX):]
+			if limitsStr[len(limitsStr) - 1] == '/' {
+				limitsStr = limitsStr[:len(limitsStr) - 1]
+			}
+			limit := strings.Split(limitsStr, "_")
+			response(logger, w, judge.Judge(r.Host, limit), "")
 			return
 		}
 		abort(logger, w, http.StatusNotFound)

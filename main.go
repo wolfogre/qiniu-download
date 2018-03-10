@@ -18,7 +18,10 @@ var (
 func main() {
 	flag.Parse()
 	log.Logger.Info("start")
-	dao.Init(*addr, *pass, *db)
+	err := dao.Init(*addr, *pass, *db)
+	if err != nil {
+		log.Logger.Panic(err)
+	}
 	log.Logger.Info("redis init")
 	http.ListenAndServe(*bind, handler.NewHandler())
 	log.Logger.Info("stop")
