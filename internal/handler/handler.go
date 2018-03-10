@@ -33,6 +33,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "HEAD":
 		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
+			logger.Debug(r.Header)
 			response(logger, w, judge.Judge(r.Host, strings.Split(r.URL.Path[len(AUTH_PREFIX):], "/")), "")
 			return
 		}
