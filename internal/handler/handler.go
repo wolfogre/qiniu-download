@@ -62,7 +62,7 @@ func response(logger *zap.SugaredLogger, w http.ResponseWriter, code int, conten
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
 	fmt.Fprintln(w, content)
-	logger.With(
+	logger = logger.With(
 		"status_code", code,
 	)
 	logger.Info(content)
