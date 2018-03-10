@@ -1,9 +1,49 @@
 package judge
 
+import (
+	"net/http"
+	"github.com/wolfogre/qiniuauth/internal/dao"
+	"github.com/wolfogre/qiniuauth/internal/log"
+	"fmt"
+)
+
+const (
+	ALLOW   = http.StatusOK
+	REJECT  = http.StatusForbidden
+	UNKNOWN = http.StatusBadRequest
+)
+
+var (
+	status = "ok"
+)
+
 func Status() (bool, string) {
-	return true, "ok"
+	return status == "ok", status
 }
 
-func Judge(host, path, ip string) int {
-	// 1h10:60m10:1s1:1d1
+func Judge(host string, limits []string) int {
+	lms := parseLimits(limits)
+	if lms == nil {
+		return UNKNOWN
+	}
+	for _, v := range lms {
+		logger := log.Logger.With(
+			"host", host,
+			"limit_second", v.Second,
+			"limit_count", v.Count,
+		)
+		count, err := dao.Incr(host, v.Second)
+		if err != nil {
+			status = fmt.Sprintf("codie error: %v", err)
+			logger.Error(status)
+			return REJECT
+		}
+		if count > v.Count {
+			status = fmt.Sprintf("%v out of limit (%v, %v): %v", host, v.Second, v.Count, count)
+			logger.Error(status)
+			return REJECT
+		}
+	}
+	return ALLOW
 }
+

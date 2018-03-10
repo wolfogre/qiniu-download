@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/go-redis/redis"
+  packages = [".","internal","internal/consistenthash","internal/hashtag","internal/pool","internal/proto","internal/singleflight","internal/util"]
+  revision = "9133634a132e00309476e2d9acbf0c8058d4c888"
+  version = "v6.10.0"
+
+[[projects]]
   name = "go.uber.org/atomic"
   packages = ["."]
   revision = "8474b86a5a6f79c443ce4b2992817ff32cf208b8"
@@ -22,6 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6523e15061b26fab7561a911f7ec7fa29cdadc38cdac966d9d996082f8f83731"
+  inputs-digest = "3d99ba0a7e4403a5098448ee19aea52cf914df450db317828c00e02d9fcee954"
   solver-name = "gps-cdcl"
   solver-version = 1

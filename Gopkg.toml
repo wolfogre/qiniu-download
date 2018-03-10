@@ -24,3 +24,7 @@
 [[constraint]]
   name = "go.uber.org/zap"
   version = "1.7.1"
+
+[[projects]]
+  name = "github.com/go-redis/redis"
+  version = "v6.10.0"

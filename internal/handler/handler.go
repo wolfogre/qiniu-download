@@ -30,11 +30,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "HEAD":
 		switch r.URL.Path {
 		case "/auth":
-			if ok, msg := judge.Status(); ok {
-				response(logger, w, http.StatusOK, msg)
-			} else {
-				response(logger, w, http.StatusInternalServerError, msg)
-			}
+			response(logger, w, judge.Judge(r.Host, strings.Split(r.URL.Path[len("/auth"):], "/")), "")
 		default:
 			abort(logger, w, http.StatusNotFound)
 		}
