@@ -9,6 +9,10 @@ import (
 	"fmt"
 )
 
+const (
+	AUTH_PREFIX = "/auth"
+)
+
 type Handler struct {
 
 }
@@ -19,7 +23,7 @@ func NewHandler() *Handler {
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := log.Logger.With(
-		"ip", strings.Split(r.RemoteAddr, ":")[0],
+		"ip", r.RemoteAddr[0 : strings.LastIndex(r.RemoteAddr, ":")],
 		"method", r.Method,
 		"host", r.Host,
 		"url", r.URL.String(),
@@ -28,12 +32,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "HEAD":
-		switch r.URL.Path {
-		case "/auth":
-			response(logger, w, judge.Judge(r.Host, strings.Split(r.URL.Path[len("/auth"):], "/")), "")
-		default:
-			abort(logger, w, http.StatusNotFound)
+		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
+			response(logger, w, judge.Judge(r.Host, strings.Split(r.URL.Path[len(AUTH_PREFIX):], "/")), "")
+			return
 		}
+		abort(logger, w, http.StatusNotFound)
 	case "GET":
 		switch r.URL.Path {
 		case "/_status":
@@ -62,9 +65,5 @@ func response(logger *zap.SugaredLogger, w http.ResponseWriter, code int, conten
 	logger.With(
 		"status_code", code,
 	)
-	if code >= 400 {
-		logger.Error(content)
-	} else {
-		logger.Info(content)
-	}
+	logger.Info(content)
 }

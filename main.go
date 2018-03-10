@@ -16,6 +16,7 @@ var (
 )
 
 func main() {
+	flag.Parse()
 	log.Logger.Info("start")
 	dao.Init(*addr, *pass, *db)
 	log.Logger.Info("redis init")

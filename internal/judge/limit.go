@@ -8,19 +8,22 @@ import (
 func parseLimits(limits []string) []*_Limit {
 	result := make([]*_Limit, 0)
 	for _, v := range limits {
-		new := parseLimit(v)
-		if new == nil {
+		if v == "" {
+			continue
+		}
+		n := parseLimit(v)
+		if n == nil {
 			return nil
 		}
 		isNew := true
 		for _, l := range result {
-			if l.Equals(new) {
+			if l.Equals(n) {
 				isNew = false
 				break
 			}
 		}
 		if isNew {
-			result = append(result, new)
+			result = append(result, n)
 		}
 	}
 	if len(result) == 0 {

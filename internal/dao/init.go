@@ -13,7 +13,7 @@ func Init(addr, passport string, db int) error {
 		DB: db,
 	})
 	err := client.Ping().Err()
-	if err != nil {
+	if err == nil {
 		redisClient = client
 	}
 	return err
