@@ -22,6 +22,9 @@ func Status() (bool, string) {
 }
 
 func Judge(domain string, limits []string) int {
+	if domain == "" {
+		return UNKNOWN
+	}
 	lms := parseLimits(limits)
 	if lms == nil {
 		return UNKNOWN

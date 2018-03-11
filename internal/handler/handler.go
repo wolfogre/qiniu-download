@@ -36,21 +36,19 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "HEAD":
-		// /auth@domain_2h10_1d100
+		// /auth-domain_2h10_1d100
 		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
-			str := r.URL.Path[len(AUTH_PREFIX):]
+			str := strings.TrimPrefix(r.URL.Path,"/")
+			idx := strings.Index(str, "/")
+			if idx != -1 {
+				str = str[:idx]
+			}
+			strs := strings.Split(str, "_")
 			domain := ""
-			if strings.Contains(str, "-") {
-				domain = str[:strings.Index(str, "-")]
-				str = r.URL.Path[len(domain + "-"):]
+			if splits := strings.Split(strs[0], "-"); len(splits) == 2 {
+				domain = splits[1]
 			}
-
-			if str[len(str) - 1] == '/' {
-				str = str[:len(str) - 1]
-			}
-			limit := strings.Split(str, "_")
-
-			response(logger, w, judge.Judge(domain, limit), "")
+			response(logger, w, judge.Judge(domain, strs[1:]), "")
 			return
 		}
 		abort(logger, w, http.StatusNotFound)
