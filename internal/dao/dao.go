@@ -16,7 +16,7 @@ func Incr(domain string, second int) (int, error) {
 		return 0, err
 	}
 	t, err := redisClient.TTL(key).Result()
-	if err == nil && t == -1 {
+	if err == nil && t == -time.Second { // 没有 key 返回 -2s，有 key 但没有 TTL 返回 -1s
 		redisClient.Expire(key, time.Duration(second) * time.Second)
 	}
 	return int(result), nil
