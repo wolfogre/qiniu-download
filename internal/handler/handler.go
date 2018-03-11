@@ -40,9 +40,9 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
 			str := r.URL.Path[len(AUTH_PREFIX):]
 			domain := ""
-			if strings.Contains(str, "@") {
-				domain = str[:strings.Index(str, "@")]
-				str = r.URL.Path[len(domain + "@"):]
+			if strings.Contains(str, "-") {
+				domain = str[:strings.Index(str, "-")]
+				str = r.URL.Path[len(domain + "-"):]
 			}
 
 			if str[len(str) - 1] == '/' {
