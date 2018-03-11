@@ -15,7 +15,8 @@ func Incr(domain string, second int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	if result == 1 {
+	t, err := redisClient.TTL(key).Result()
+	if err == nil && t == -1 {
 		redisClient.Expire(key, time.Duration(second) * time.Second)
 	}
 	return int(result), nil
