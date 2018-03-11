@@ -22,8 +22,12 @@ func NewHandler() *Handler {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ip := r.Header.Get("X-Real-IP")
+	if ip == "" {
+		ip = r.RemoteAddr[0 : strings.LastIndex(r.RemoteAddr, ":")]
+	}
 	logger := log.Logger.With(
-		"ip", r.RemoteAddr[0 : strings.LastIndex(r.RemoteAddr, ":")],
+		"ip", ip,
 		"method", r.Method,
 		"host", r.Host,
 		"url", r.URL.String(),
@@ -32,13 +36,21 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "HEAD":
+		// /auth@domain_2h10_1d100
 		if strings.HasPrefix(r.URL.Path, AUTH_PREFIX) {
-			limitsStr := r.URL.Path[len(AUTH_PREFIX):]
-			if limitsStr[len(limitsStr) - 1] == '/' {
-				limitsStr = limitsStr[:len(limitsStr) - 1]
+			str := r.URL.Path[len(AUTH_PREFIX):]
+			domain := ""
+			if strings.Contains(str, "@") {
+				domain = str[:strings.Index(str, "@")]
+				str = r.URL.Path[len(domain + "@"):]
 			}
-			limit := strings.Split(limitsStr, "_")
-			response(logger, w, judge.Judge(r.Host, limit), "")
+
+			if str[len(str) - 1] == '/' {
+				str = str[:len(str) - 1]
+			}
+			limit := strings.Split(str, "_")
+
+			response(logger, w, judge.Judge(domain, limit), "")
 			return
 		}
 		abort(logger, w, http.StatusNotFound)
@@ -66,9 +78,12 @@ func response(logger *zap.SugaredLogger, w http.ResponseWriter, code int, conten
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.WriteHeader(code)
-	fmt.Fprintln(w, content)
-	logger = logger.With(
+	if content == "" {
+		fmt.Fprint(w, content)
+	} else {
+		fmt.Fprintln(w, content)
+	}
+	logger.With(
 		"status_code", code,
-	)
-	logger.Info(content)
+	).Info(content)
 }

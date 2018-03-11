@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-func Incr(host string, second int) (int, error) {
-	if len(host) > 50 {
-		host = host[:50]
+func Incr(domain string, second int) (int, error) {
+	if len(domain) > 50 {
+		domain = domain[:50]
 	}
-	key := fmt.Sprintf("qiniuauth_%v_%v", host, second)
+	key := fmt.Sprintf("qiniuauth_%v_%v", domain, second)
 
 	result, err := redisClient.Incr(key).Result()
 	if err != nil {

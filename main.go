@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	bind = flag.String("bind", ":1533","bind address, like ip:port" )
+	bind = flag.String("bind", ":80","bind address, like ip:port" )
 	addr = flag.String("addr", "","redis address" )
 	pass = flag.String("pass", "","redis password" )
 	db = flag.Int("db", 1,"redis db" )

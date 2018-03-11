@@ -21,25 +21,25 @@ func Status() (bool, string) {
 	return status == "ok", status
 }
 
-func Judge(host string, limits []string) int {
+func Judge(domain string, limits []string) int {
 	lms := parseLimits(limits)
 	if lms == nil {
 		return UNKNOWN
 	}
 	for _, v := range lms {
 		logger := log.Logger.With(
-			"host", host,
+			"domain", domain,
 			"limit_second", v.Second,
 			"limit_count", v.Count,
 		)
-		count, err := dao.Incr(host, v.Second)
+		count, err := dao.Incr(domain, v.Second)
 		if err != nil {
-			status = fmt.Sprintf("codie error: %v", err)
+			status = fmt.Sprintf("redis error: %v", err)
 			logger.Error(status)
 			return REJECT
 		}
 		if count > v.Count {
-			status = fmt.Sprintf("%v out of limit (%v, %v): %v", host, v.Second, v.Count, count)
+			status = fmt.Sprintf("%v out of limit (%v, %v): %v", domain, v.Second, v.Count, count)
 			logger.Error(status)
 			return REJECT
 		}
