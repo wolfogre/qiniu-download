@@ -1,52 +1,55 @@
 package judge
 
 import (
-	"net/http"
-	"github.com/wolfogre/qiniuauth/internal/dao"
-	"github.com/wolfogre/qiniuauth/internal/log"
+	"time"
 	"fmt"
+
+	"github.com/google/uuid"
+	"github.com/wolfogre/qiniu-download/internal/dao"
+	"github.com/wolfogre/qiniu-download/internal/log"
 )
 
-const (
-	ALLOW   = http.StatusOK
-	REJECT  = http.StatusForbidden
-	UNKNOWN = http.StatusBadRequest
-)
+// 一个 IP 1 小时最多下载 10 次，暂时写死
+func GenToken(ip string) string {
+	count, err := dao.Incr(ip, time.Hour)
+	if err != nil {
+		log.Logger.Error(err)
+		log.ChangeStatus(err)
+		return ""
+	}
 
-var (
-	status = "ok"
-)
+	if count > 10 {
+		err := fmt.Errorf("%v download too frequently", ip)
+		log.Logger.Error(err)
+		log.ChangeStatus(err)
+		return ""
+	}
 
-func Status() (bool, string) {
-	return status == "ok", status
+	token := uuid.New().String()
+	if token == "" {
+		err := fmt.Errorf("token is empty")
+		log.Logger.Error(err)
+		log.ChangeStatus(err)
+		return ""
+	}
+
+	err = dao.PutToken(ip, token)
+	if err != nil {
+		log.Logger.Error(err)
+		log.ChangeStatus(err)
+		return ""
+	}
+
+	return token
 }
 
-func Judge(domain string, limits []string) int {
-	if domain == "" {
-		return UNKNOWN
-	}
-	lms := parseLimits(limits)
-	if lms == nil {
-		return UNKNOWN
-	}
-	for _, v := range lms {
-		logger := log.Logger.With(
-			"domain", domain,
-			"limit_second", v.Second,
-			"limit_count", v.Count,
-		)
-		count, err := dao.Incr(domain, v.Second)
-		if err != nil {
-			status = fmt.Sprintf("redis error: %v", err)
-			logger.Error(status)
-			return REJECT
-		}
-		if count > v.Count {
-			status = fmt.Sprintf("%v out of limit (%v, %v): %v", domain, v.Second, v.Count, count)
-			logger.Error(status)
-			return REJECT
-		}
-	}
-	return ALLOW
-}
 
+func VerifyToken(token string) bool {
+	result, err := dao.GetDeleteToken(token)
+	if err != nil {
+		log.Logger.Error(err)
+		log.ChangeStatus(err)
+		return false
+	}
+	return result
+}

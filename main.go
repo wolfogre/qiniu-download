@@ -3,16 +3,18 @@ package main
 import (
 	"flag"
 	"net/http"
-	"github.com/wolfogre/qiniuauth/internal/handler"
-	"github.com/wolfogre/qiniuauth/internal/log"
-	"github.com/wolfogre/qiniuauth/internal/dao"
+
+	"github.com/wolfogre/qiniu-download/internal/handler"
+	"github.com/wolfogre/qiniu-download/internal/log"
+	"github.com/wolfogre/qiniu-download/internal/dao"
 )
 
 var (
 	bind = flag.String("bind", ":80","bind address, like ip:port" )
 	addr = flag.String("addr", "","redis address" )
 	pass = flag.String("pass", "","redis password" )
-	db = flag.Int("db", 1,"redis db" )
+	cdnAddr = flag.String("cdn", "","cdn address" )
+	db = flag.Int("db", 1, "redis db" )
 )
 
 func main() {
@@ -23,7 +25,7 @@ func main() {
 		log.Logger.Panic(err)
 	}
 	log.Logger.Info("redis init")
-	http.ListenAndServe(*bind, handler.NewHandler())
+	http.ListenAndServe(*bind, handler.NewHandler(*cdnAddr))
 	log.Logger.Info("stop")
 	log.Logger.Sync()
 }
