@@ -8,7 +8,7 @@ var (
 )
 
 func Status() (bool, string) {
-	if time.Now().Add(10 * time.Minute).Before(errTime) {
+	if time.Now().Add(-10 * time.Minute).Before(errTime) {
 		if statusErr == nil {
 			return true, "ok"
 		}

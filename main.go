@@ -24,7 +24,7 @@ func main() {
 	if err != nil {
 		log.Logger.Panic(err)
 	}
-	log.Logger.Info("redis init")
+	log.Logger.Info("dao init")
 	http.ListenAndServe(*bind, handler.NewHandler(*cdnAddr))
 	log.Logger.Info("stop")
 	log.Logger.Sync()

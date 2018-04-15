@@ -49,7 +49,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 			return
 		}
-		abort(logger, w, http.StatusNotFound)
+		abort(logger, w, http.StatusMethodNotAllowed)
 	case "GET":
 		switch r.URL.Path {
 		case "/_status":
