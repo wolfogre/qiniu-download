@@ -4,8 +4,8 @@ ENV TZ=Asia/Shanghai
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-COPY qiniuauth /opt/qiniuauth
+COPY qiniu-download /opt/qiniu-download
 
-EXPOSE 1533
+EXPOSE 80
 
-ENTRYPOINT ["/opt/qiniuauth"]
+ENTRYPOINT ["/opt/qiniu-download"]
